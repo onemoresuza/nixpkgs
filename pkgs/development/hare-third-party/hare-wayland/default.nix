@@ -6,6 +6,7 @@
   pkg-config,
   stdenv,
   wayland,
+  wayland-protocols,
 }:
 stdenv.mkDerivation {
   pname = "hare-wayland";
@@ -18,25 +19,28 @@ stdenv.mkDerivation {
     hash = "sha256-olBwcUAHDAsh0+D0IAr4b0CJmRXRK7q62O0e3NlVY+8=";
   };
 
+  depsBuildBuild = [ pkg-config ];
+
   nativeBuildInputs = [
     pkg-config
     hareHook
     hareThirdParty.hare-xml
     wayland
+    wayland-protocols
   ];
 
-  postPatch = ''
-    substituteInPlace ./Makefile \
-      --replace-fail 'hare ' '$(HARE) '
-  '';
+  patches = [ ./001-dont-regenarate-hare-wlscanner.patch ];
 
   makeFlags = [
     "PREFIX=${builtins.placeholder "out"}"
     "HARE=hare-unwrapped"
+    "HAREFLAGS=-qR"
   ];
 
+  doCheck = true;
+
   # hare-wlscanner must be run at build time, but it is also installed.
-  postBuild = lib.optionalString (stdenv.buildPlatform.canExecute stdenv.hostPlatform) ''
+  postBuild = lib.optionalString (!(stdenv.buildPlatform.canExecute stdenv.hostPlatform)) ''
     rm hare-wlscanner
     make hare-wlscanner
   '';

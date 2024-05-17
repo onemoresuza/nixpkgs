@@ -1,0 +1,20 @@
+diff --git a/Makefile b/Makefile
+index e419b78..54d24b9 100644
+--- a/Makefile
++++ b/Makefile
+@@ -29,12 +29,12 @@ wayland/xdg/xdg_shell.ha: hare-wlscanner
+ generate: wayland/wl/wayland.ha wayland/xdg/xdg_shell.ha
+ 
+ hare-wlscanner: cmd/scanner/main.ha
+-	hare build $(HAREFLAGS) -o $@ $<
++	$(HARE) build $(HAREFLAGS) -o $@ $<
+ 
+ check:
+-	hare test
++	$(HARE) test $(HAREFLAGS)
+ 
+-install: hare-wlscanner wayland/wl/wayland.ha
++install:
+ 	mkdir -p $(DESTDIR)$(THIRDPARTYDIR)/wayland/client
+ 	mkdir -p $(DESTDIR)$(THIRDPARTYDIR)/wayland/scanner
+ 	mkdir -p $(DESTDIR)$(THIRDPARTYDIR)/wayland/wl
