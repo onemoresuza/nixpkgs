@@ -1,0 +1,26 @@
+{
+  hareHook,
+  lib,
+  stdenv,
+  fetchFromSourcehut,
+}:
+
+stdenv.mkDerivation (finalAttrs: {
+  pname = "hare-c";
+  version = "0-unstable-2024-06-21";
+
+  src = fetchFromSourcehut {
+    owner = "~sebsite";
+    repo = "hare-c";
+    rev = "1bf070a9c05fce40bb63a6f30f8b2c240f1564ca";
+    hash = "sha256-Hpc7l88EaAiNBU4XCmNUUQfIvg4XTfUmVJIXKOEGU1A=";
+  };
+
+  meta = {
+    description = "C parsing and checking library for Hare";
+    homepage = "https://sr.ht/~sebsite/hare-c";
+    license = lib.licenses.wtfpl;
+    maintainers = with lib.maintainers; [ onemoresuza ];
+    inherit (hareHook) platforms badPlatforms;
+  };
+})
