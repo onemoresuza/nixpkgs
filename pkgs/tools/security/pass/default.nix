@@ -19,7 +19,6 @@
   qrencode,
   makeWrapper,
   pass,
-
   xclip ? null,
   xdotool ? null,
   dmenu ? null,
@@ -80,12 +79,12 @@ let
     };
 in
 
-stdenv.mkDerivation rec {
+stdenv.mkDerivation (finalAttrs: {
   version = "1.7.4";
   pname = "password-store";
 
   src = fetchurl {
-    url = "https://git.zx2c4.com/password-store/snapshot/${pname}-${version}.tar.xz";
+    url = "https://git.zx2c4.com/password-store/snapshot/password-store-${finalAttrs.version}.tar.xz";
     sha256 = "1h4k6w7g8pr169p5w9n6mkdhxl3pw51zphx7www6pvgjb7vgmafg";
   };
 
@@ -141,13 +140,13 @@ stdenv.mkDerivation rec {
 
       # Ensure all dependencies are in PATH
       wrapProgram $out/bin/pass \
-        --prefix PATH : "${wrapperPath}"
+        --prefix PATH : "${finalAttrs.wrapperPath}"
     ''
     + lib.optionalString dmenuSupport ''
       # We just wrap passmenu with the same PATH as pass. It doesn't
       # need all the tools in there but it doesn't hurt either.
       wrapProgram $out/bin/passmenu \
-        --prefix PATH : "$out/bin:${wrapperPath}"
+        --prefix PATH : "$out/bin:${finalAttrs.wrapperPath}"
     '';
 
   # Turn "check" into "installcheck", since we want to test our pass,
@@ -209,4 +208,4 @@ stdenv.mkDerivation rec {
       synchronize, generate, and manipulate passwords.
     '';
   };
-}
+})
