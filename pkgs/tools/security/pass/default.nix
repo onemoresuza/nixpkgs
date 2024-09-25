@@ -3,7 +3,6 @@
   lib,
   pkgs,
   fetchurl,
-  bash,
   buildEnv,
   coreutils,
   findutils,
@@ -49,7 +48,11 @@ let
     extensions:
     let
       selected =
-        [ pass ] ++ extensions passExtensions ++ lib.optional tombPluginSupport passExtensions.tomb;
+        [
+          pass
+        ]
+        ++ extensions passExtensions
+        ++ lib.optional tombPluginSupport passExtensions.tomb;
     in
     buildEnv {
       name = "pass-env";
@@ -92,8 +95,6 @@ stdenv.mkDerivation rec {
   ] ++ lib.optional stdenv.hostPlatform.isDarwin ./no-darwin-getopt.patch;
 
   nativeBuildInputs = [ makeWrapper ];
-
-  buildInputs = [ bash ];
 
   installFlags = [
     "PREFIX=$(out)"
