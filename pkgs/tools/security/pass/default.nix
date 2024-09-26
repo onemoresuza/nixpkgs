@@ -79,9 +79,6 @@ let
             ln -sf $i $out/bin/$(basename $i)
           fi
         done
-
-        wrapProgram $out/bin/pass \
-          --set SYSTEM_EXTENSION_DIR "$out/lib/password-store/extensions"
       '';
       meta.mainProgram = "pass";
     };
@@ -91,8 +88,10 @@ let
     interpreter = lib.getExe bash;
     # Reasons:
     # 1. ${EDITOR:-vi}
+    # 2. Keep `withExtensions` function without the need of wrapping the script
     prologue = builtins.toString (
       writeText "pass-prologue" ''
+        SYSTEM_EXTENSION_DIR="''${SYSTEM_EXTENSION_DIR:-"''${0%/bin/pass}/lib/password-store/extensions"}"
         PATH=$PATH:${lib.makeBinPath [ vim ]}
       ''
     );
