@@ -19,6 +19,14 @@
   qrencode,
   makeWrapper,
   pass,
+  feh,
+  graphicsmagick,
+  imagemagick,
+  diffutils,
+  resholve,
+  bash,
+  writeText,
+  vim,
   xclip ? null,
   xdotool ? null,
   dmenu ? null,
@@ -77,6 +85,72 @@ let
       '';
       meta.mainProgram = "pass";
     };
+
+  resholvePassPhrase = resholve.phraseSolution "pass" {
+    scripts = [ "bin/pass" ];
+    interpreter = lib.getExe bash;
+    # Reasons:
+    # 1. ${EDITOR:-vi}
+    prologue = builtins.toString (
+      writeText "pass-prologue" ''
+        PATH=$PATH:${lib.makeBinPath [ vim ]}
+      ''
+    );
+    fix = {
+      "$GPG" = [ "gpg" ];
+      "$BASE64" = [ "base64" ];
+      "$SHRED" = [ "shred -f -z" ];
+      "$GETOPT" = [ "getopt" ];
+    };
+    execer = [
+      "cannot:${lib.getExe git}"
+      "cannot:${lib.getExe' gnupg "gpg"}"
+      "cannot:${lib.getExe feh}"
+      "cannot:${lib.getExe' diffutils "diff"}"
+    ];
+    fake = {
+      # The code mentions that qdbus not being available is essentialy a no-op.
+      external = [ "qdbus" ];
+      builtin = [ "type" ];
+    };
+    keep = {
+      source = [ "$extension" ];
+      "$paste_cmd" = true;
+      "$copy_cmd" = true;
+      "$EDITOR" = true;
+    };
+    inputs =
+      [
+        bash
+        coreutils
+        diffutils
+        feh
+        findutils
+        getopt
+        git
+        gnugrep
+        gnupg
+        gnused
+        graphicsmagick
+        imagemagick
+        tree
+        which
+        openssh
+        procps
+        qrencode
+      ]
+      ++ lib.optional stdenv.hostPlatform.isDarwin openssl
+      ++ lib.optional x11Support xclip
+      ++ lib.optional waylandSupport wl-clipboard
+      ++ lib.optionals (waylandSupport && dmenuSupport) [
+        ydotool
+        dmenu-wayland
+      ]
+      ++ lib.optionals (x11Support && dmenuSupport) [
+        xdotool
+        dmenu
+      ];
+  };
 in
 
 stdenv.mkDerivation (finalAttrs: {
@@ -99,55 +173,6 @@ stdenv.mkDerivation (finalAttrs: {
     "PREFIX=$(out)"
     "WITH_ALLCOMP=yes"
   ];
-
-  postInstall = lib.optionalString dmenuSupport ''
-    cp "contrib/dmenu/passmenu" "$out/bin/"
-  '';
-
-  wrapperPath = lib.makeBinPath (
-    [
-      coreutils
-      findutils
-      getopt
-      git
-      gnugrep
-      gnupg
-      gnused
-      tree
-      which
-      openssh
-      procps
-      qrencode
-    ]
-    ++ lib.optional stdenv.hostPlatform.isDarwin openssl
-    ++ lib.optional x11Support xclip
-    ++ lib.optional waylandSupport wl-clipboard
-    ++ lib.optionals (waylandSupport && dmenuSupport) [
-      ydotool
-      dmenu-wayland
-    ]
-    ++ lib.optionals (x11Support && dmenuSupport) [
-      xdotool
-      dmenu
-    ]
-  );
-
-  postFixup =
-    ''
-      # Fix program name in --help
-      substituteInPlace $out/bin/pass \
-        --replace 'PROGRAM="''${0##*/}"' "PROGRAM=pass"
-
-      # Ensure all dependencies are in PATH
-      wrapProgram $out/bin/pass \
-        --prefix PATH : "${finalAttrs.wrapperPath}"
-    ''
-    + lib.optionalString dmenuSupport ''
-      # We just wrap passmenu with the same PATH as pass. It doesn't
-      # need all the tools in there but it doesn't hurt either.
-      wrapProgram $out/bin/passmenu \
-        --prefix PATH : "$out/bin:${finalAttrs.wrapperPath}"
-    '';
 
   # Turn "check" into "installcheck", since we want to test our pass,
   # not the one before the fixup.
@@ -174,6 +199,11 @@ stdenv.mkDerivation (finalAttrs: {
       rm -f tests/t0300-reencryption.sh
       rm -f tests/t0400-grep.sh
     '';
+
+  postInstall = ''
+    cp "contrib/dmenu/passmenu" "$out/bin/"
+    ${resholvePassPhrase}
+  '';
 
   doCheck = false;
 
