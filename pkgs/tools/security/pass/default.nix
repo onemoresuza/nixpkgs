@@ -150,6 +150,17 @@ let
         dmenu
       ];
   };
+
+  resholvePassmenuPhrase = resholve.phraseSolution {
+    scripts = [ "bin/passmenu" ];
+    interpreter = lib.getExe bash;
+    inputs = [
+      dmenu
+      dmenu-wayland
+      ydotool
+      xdotool
+    ];
+  };
 in
 
 stdenv.mkDerivation (finalAttrs: {
