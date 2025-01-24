@@ -42,7 +42,7 @@ stdenv.mkDerivation (finalAttrs: {
 
   env.PREFIX = builtins.placeholder "out";
 
-  doCheck = stdenv.buildPlatform.canExecute stdenv.hostPlatform;
+  doInstallCheck = true;
 
   dontConfigure = true;
 
@@ -55,14 +55,6 @@ stdenv.mkDerivation (finalAttrs: {
     runHook postBuild
   '';
 
-  checkPhase = ''
-    runHook preCheck
-
-    ./bin/haredo ''${enableParallelChecking:+-j$NIX_BUILD_CORES} test
-
-    runHook postCheck
-  '';
-
   installPhase = ''
     runHook preInstall
 
@@ -72,6 +64,14 @@ stdenv.mkDerivation (finalAttrs: {
     cp ./doc/haredo.1 $out/share/man/man1
 
     runHook postInstall
+  '';
+
+  installCheckPhase = ''
+    runHook preInstallCheck
+
+    $out/bin/haredo ''${enableParallelChecking:+-j$NIX_BUILD_CORES} test
+
+    runHook postInstallCheck
   '';
 
   setupHook = ./setup-hook.sh;
