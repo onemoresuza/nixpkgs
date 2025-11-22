@@ -1,0 +1,45 @@
+diff --git a/pjeoffice-pro.sh b/pjeoffice-pro.sh
+old mode 100644
+new mode 100755
+index e3b3d70..67e0061
+--- a/pjeoffice-pro.sh
++++ b/pjeoffice-pro.sh
+@@ -5,8 +5,6 @@ debugMode=false
+ currentDIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+ currentDIR=$currentDIR | sed -e 's/ /\\ /g'
+ cd "$currentDIR"
+-chmod 755 ffmpeg.exe
+-chmod 755 ./jre/bin/java
+ a3auto=true
+ if [ "$debugMode" = false ]; then
+ 	rm -rf ~/.pjeoffice-pro/*.log*
+@@ -15,7 +13,16 @@ else
+     rm -rf ~/.pjeoffice-pro
+ fi
+
+-nohup ./jre/bin/java \
++wmname LG3D
++export AWT_TOOLKIT="MToolkit"
++
++# shellcheck disable=SC2016
++{
++    printf -- 'Arquivo de log localizado sob o dir `~/.pjeoffice-pro`\n' 1>&2
++    printf -- 'Defina a var `debugMode` para `true` para o gerar\n' 1>&2
++}
++
++./jre/bin/java \
+ -XX:+UseG1GC \
+ -XX:MinHeapFreeRatio=3 \
+ -XX:MaxHeapFreeRatio=3 \
+@@ -27,10 +34,4 @@ nohup ./jre/bin/java \
+ -Dcutplayer4j_looksandfeels="Nimbus" \
+ -Dsigner4j_a3auto="$a3auto" \
+ -jar \
+-pjeoffice-pro.jar >/dev/null 2>&1 &
+-
+-# Aguarda 1 segundo antes de finalizar a seção atual
+-sleep 1
+-
+-# Fecha a tela preta do script
+-exit
++pjeoffice-pro.jar
