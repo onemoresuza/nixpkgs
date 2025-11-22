@@ -143,6 +143,7 @@ let
   # {
   #   allowUnfree = false;
   #   allowUnfreePredicate = (x: pkgs.lib.hasPrefix "vscode" x.name);
+  #   permittedUnfreePackages = [ pkgs.steam ];
   # }
   # Defaults to allow all names defined in config.allowUnfreePackages
   allowUnfreePredicate =
