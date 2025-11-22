@@ -151,6 +151,7 @@ let
   # {
   #   allowUnfree = false;
   #   allowUnfreePredicate = (x: pkgs.lib.hasPrefix "vscode" x.name);
+  #   permittedUnfreePackages = [ pkgs.steam ];
   # }
   allowUnfreePredicate =
     config.allowUnfreePredicate or (x: builtins.elem (lib.getName x) permittedUnfreePackages);
