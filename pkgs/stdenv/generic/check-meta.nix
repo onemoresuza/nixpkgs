@@ -160,9 +160,8 @@ let
   #   permittedUnfreePackages = [ pkgs.steam ];
   # }
   allowUnfreePredicate =
-    config.allowUnfreePredicate or (
-      x: builtins.elem (lib.getName x) (builtins.map lib.getName (config.permittedUnfreePackages or [ ]))
-    );
+    config.allowUnfreePredicate or (x: builtins.elem (lib.getName x) permittedUnfreePackages);
+  permittedUnfreePackages = builtins.map lib.getName (config.permittedUnfreePackages or [ ]);
 
   # Check whether unfree packages are allowed and if not, whether the
   # package has an unfree license and is not explicitly allowed by the
