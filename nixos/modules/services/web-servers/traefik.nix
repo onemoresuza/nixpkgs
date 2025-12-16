@@ -38,7 +38,13 @@ in
     staticConfigFile = mkOption {
       default = null;
       example = literalExpression "/path/to/static_config.toml";
-      type = types.nullOr types.path;
+      type = types.nullOr (
+        types.oneOf [
+          types.path
+          # Support systemd specifiers.
+          (types.strMatching "%[aAbBCdDEfgGhHiIjJlLmMnNopPqsStTuUvVwWyY]/.+")
+        ]
+      );
       description = ''
         Path to traefik's static configuration to use.
         (Using that option has precedence over `staticConfigOptions` and `dynamicConfigOptions`)
