@@ -2298,6 +2298,8 @@ with pkgs;
 
   bmrsa = callPackage ../tools/security/bmrsa/11.nix { };
 
+  inherit (callPackage ../build-support/borgmatic { }) mkBorgmaticCheck;
+
   anystyle-cli = callPackage ../tools/misc/anystyle-cli { };
 
   bzip2 = callPackage ../tools/compression/bzip2 { };
